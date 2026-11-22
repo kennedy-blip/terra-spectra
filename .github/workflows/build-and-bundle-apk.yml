@@ -21,10 +21,10 @@ jobs:
           java-version: '17'
           cache: gradle
       - name: Install Android SDK components
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
       - name: Install and build web bundle
         run: npm ci && npm run build
       - name: Sync Capacitor app
