@@ -31,7 +31,14 @@ jobs:
         run: npx cap sync android
       - name: Build signed-for-sideloading debug APK
         working-directory: android
-        run: ./gradlew --no-daemon assembleDebug
+        run: |
+          set +e
+          ./gradlew --no-daemon assembleDebug --stacktrace > gradle-build.log 2>&1
+          result=$?
+          if [ $result -ne 0 ]; then
+            tail -n 18 gradle-build.log | while IFS= read -r line; do echo "::error::$line"; done
+            exit $result
+          fi
       - name: Prepare named APK and checksum
         run: |
           cp android/app/build/outputs/apk/debug/app-debug.apk TerraSpectra-AgroLab-v1.0.0.apk
