@@ -1,0 +1,49 @@
+name: Build and publish Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: ['**']
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v3
+      - name: Install and build web bundle
+        run: npm ci && npm run build
+      - name: Sync Capacitor app
+        run: npx cap sync android
+      - name: Build signed-for-sideloading debug APK
+        working-directory: android
+        run: ./gradlew --no-daemon assembleDebug
+      - name: Prepare named APK and checksum
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk TerraSpectra-AgroLab-v1.0.0.apk
+          sha256sum TerraSpectra-AgroLab-v1.0.0.apk > TerraSpectra-AgroLab-v1.0.0.apk.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TerraSpectra-AgroLab-v1.0.0
+          path: |
+            TerraSpectra-AgroLab-v1.0.0.apk
+            TerraSpectra-AgroLab-v1.0.0.apk.sha256
+          if-no-files-found: error
+      - name: Publish downloadable release assets for one-tap download
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            TerraSpectra-AgroLab-v1.0.0.apk
+            TerraSpectra-AgroLab-v1.0.0.apk.sha256

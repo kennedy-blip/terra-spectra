@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">TerraSpectra</string>
+    <string name="title_activity_main">TerraSpectra</string>
+    <string name="package_name">com.terraspectra.agro</string>
+    <string name="custom_url_scheme">com.terraspectra.agro</string>
+</resources>
