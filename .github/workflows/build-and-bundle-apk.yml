@@ -36,7 +36,7 @@ jobs:
           ./gradlew --no-daemon assembleDebug --stacktrace > gradle-build.log 2>&1
           result=$?
           if [ $result -ne 0 ]; then
-            tail -n 18 gradle-build.log | while IFS= read -r line; do echo "::error::$line"; done
+            { grep -E '^(FAILURE:|\* What went wrong:|Execution failed for task|Could not resolve|Could not find|e: |error:|A problem occurred|\* Exception is:)' gradle-build.log | tail -n 12; tail -n 4 gradle-build.log; } | while IFS= read -r line; do echo "::error::$line"; done
             exit $result
           fi
       - name: Prepare named APK and checksum
